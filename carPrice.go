@@ -4,11 +4,10 @@ import (
 	"carPrice/car"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gocraft/web"
 )
-
-var n = 888
 
 type Context struct {
 	HelloCount int
@@ -20,6 +19,10 @@ func (c *Context) SetHelloCount(rw web.ResponseWriter, req *web.Request, next we
 }
 
 func (c *Context) SayHello(rw web.ResponseWriter, req *web.Request) {
+
+	str := req.FormValue("id")
+	fmt.Println(str)
+	n, _ := strconv.Atoi(str)
 	carPrice := car.CarPriceById(n)
 	bs, err := carPrice.ParseToJson()
 	if err != nil {
@@ -30,12 +33,12 @@ func (c *Context) SayHello(rw web.ResponseWriter, req *web.Request) {
 }
 
 func main() {
-	str := fmt.Sprint("/car/", n)
+	str := fmt.Sprint("/chexiang/produce/id")
 	router := web.New(Context{}). // Create your router
 					Middleware(web.LoggerMiddleware).     // Use some included middleware
 					Middleware(web.ShowErrorsMiddleware). // ...
 					Middleware((*Context).SetHelloCount). // Your own middleware!
 					Get(str, (*Context).SayHello)         // Add a route
-	http.ListenAndServe("localhost:3000", router) // Start the server!
+	http.ListenAndServe("localhost:3000", router) // Start the server!www
 
 }
