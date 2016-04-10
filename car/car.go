@@ -14,15 +14,25 @@ var (
 	remark string
 )
 
-type CarPrice struct {
-	Id     int      `json:"id"`
-	Time   []string `json:"time"`
-	Price  []string `json:"price"`
-	Remark []string `json:"remark"`
+type CarPrices struct {
+	Id       int               `json:"id"`
+	CarPrice []CarPriceOneTime `json:"carPrice"`
 }
 
-func CarPriceById(id int) *CarPrice {
-	carPrice := &CarPrice{}
+type CarPriceOneTime struct {
+	Time   string `json:"time"`
+	Price  string `json:"price"`
+	Remark string `json:"remark"`
+}
+
+func CarPriceById(id int) *CarPrices {
+	var carPrice []CarPriceOneTime
+	carPrices := &CarPrices{
+		Id:       id,
+		CarPrice: carPrice,
+	}
+
+	carPriceOneTime := CarPriceOneTime{}
 
 	db, err := sql.Open("mysql", "root:tantan@tcp(127.0.0.1:3306)/chexiang")
 	if err != nil {
@@ -30,9 +40,7 @@ func CarPriceById(id int) *CarPrice {
 	}
 	defer db.Close()
 
-	carPrice.Id = id
-
-	row, err := db.Query(fmt.Sprintf("SELECT * FROM id_%d", carPrice.Id))
+	row, err := db.Query(fmt.Sprintf("SELECT * FROM id_%d", carPrices.Id))
 	if err != nil {
 		panic(err.Error())
 	}
@@ -43,13 +51,14 @@ func CarPriceById(id int) *CarPrice {
 		if err != nil {
 			panic(err.Error())
 		}
-		carPrice.Price = append(carPrice.Price, price)
-		carPrice.Time = append(carPrice.Time, time)
-		carPrice.Remark = append(carPrice.Remark, remark)
+		carPriceOneTime.Price = price
+		carPriceOneTime.Time = time
+		carPriceOneTime.Remark = remark
+		carPrices.CarPrice = append(carPrices.CarPrice, carPriceOneTime)
 	}
-	return carPrice
+	return carPrices
 }
 
-func (self *CarPrice) ParseToJson() ([]byte, error) {
+func (self *CarPrices) ParseToJson() ([]byte, error) {
 	return json.Marshal(&self)
 }

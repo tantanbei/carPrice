@@ -39,6 +39,6 @@ func main() {
 					Middleware(web.ShowErrorsMiddleware). // ...
 					Middleware((*Context).SetHelloCount). // Your own middleware!
 					Get(str, (*Context).SayHello)         // Add a route
-	http.ListenAndServe("localhost:3000", router) // Start the server!www
+	http.ListenAndServe(":8080", router) // Start the server!www
 
 }
