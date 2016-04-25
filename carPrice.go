@@ -1,44 +1,19 @@
 package main
 
 import (
-	"carPrice/car"
-	"fmt"
+	"carPrice/api"
 	"net/http"
-	"strconv"
 
 	"github.com/gocraft/web"
 )
 
-type Context struct {
-	HelloCount int
-}
-
-func (c *Context) SetHelloCount(rw web.ResponseWriter, req *web.Request, next web.NextMiddlewareFunc) {
-	c.HelloCount = 3
-	next(rw, req)
-}
-
-func (c *Context) SayHello(rw web.ResponseWriter, req *web.Request) {
-
-	str := req.FormValue("id")
-	fmt.Println(str)
-	n, _ := strconv.Atoi(str)
-	carPrice := car.CarPriceById(n)
-	bs, err := carPrice.ParseToJson()
-	if err != nil {
-		panic(err)
-	}
-	fmt.Fprint(rw, string(bs))
-
-}
-
 func main() {
-	str := fmt.Sprint("/chexiang/produce/id")
-	router := web.New(Context{}). // Create your router
-					Middleware(web.LoggerMiddleware).     // Use some included middleware
-					Middleware(web.ShowErrorsMiddleware). // ...
-					Middleware((*Context).SetHelloCount). // Your own middleware!
-					Get(str, (*Context).SayHello)         // Add a route
+	router := web.New(api.Api{}). // Create your router
+					Middleware(web.LoggerMiddleware).                    // Use some included middleware
+					Middleware(web.ShowErrorsMiddleware).                // ...
+					Get("/chexiang/produce/id", (*api.Api).GetCarPrices) // Add a route
+
+	//start serve
 	http.ListenAndServe(":8080", router) // Start the server!www
 
 }
